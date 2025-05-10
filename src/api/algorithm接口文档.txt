@@ -1,0 +1,59 @@
+所有接口      code 为 1 表示成功，其他表示失败
+            data    封装数据
+            msg     提示信息
+{
+    "code": 1,
+    "msg": null,
+    "data": {
+        "analysisResultUrl": "http://www.quazero.com/uploads/allimg/140303/1-140303214331.jpg",
+        "analysisResult": "algorithm：微表情图像, 开心：0.8,悲伤：0.2"
+    }
+}
+
+算法上传分析图片
+Path： /algorithm/image-analyze
+Method： POST
+
+请求参数 body  是个form表单
+名称	           类型	是否必须	默认值	备注	其他信息
+algorithm       string	是	    算法选择	算法选择
+media_type      string	是	    媒体类型	媒体类型，image 或者 video
+file            file	是	    媒体文件	图片或者视频文件
+
+      const formData = new FormData();
+      formData.append('algorithm', this.selectedAlgorithm);
+      formData.append('media_type', this.isVideo ? 'video' : 'image');
+      formData.append('file', this.currentFile);
+
+返回数据
+名称	                    类型	        是否必须	默认值	备注	其他信息
+code	                integer	    必须
+data
+├─ analysisResultUrl    string	    非必须		    结果图片url
+├─ analysisResult	    json	    非必须		    结果详情，包含，算法选择 分析详情 微表情分类
+    ├─ algorithm	    string	    非必须		    算法选择
+    ├─ detail	        string	    非必须		    分析详情
+    ├─ emotion	        json	 仅微表情图像处理有    微表情分类
+        ├── 开心	        double	 仅微表情图像处理有	    开心
+        ├── 悲伤	        double	 仅微表情图像处理有    悲伤
+        ├── 愤怒	        double	 仅微表情图像处理有    愤怒
+        ├── 惊讶	        double	 仅微表情图像处理有    惊讶
+        ├── 等
+
+msg	string	非必须
+
+后端可以用HashMap封装实现  例如
+Map<String, Object> analysisResult = new HashMap<>();
+        analysisResult.put("algorithm", "微表情图像处理");
+        analysisResult.put("detail", "asasdasdasdasdasd11");
+        analysisResult.put("emotion", new HashMap<String, Double>(){{
+            put("恶心", 0.1);
+            put("开心", 0.3);
+            put("悲伤", 0.2);
+            put("疯狂", 0.2);
+            put("劳累", 0.1);
+            put("平静", 0.2);
+        }});
+
+
+接口封装在vue.config.js

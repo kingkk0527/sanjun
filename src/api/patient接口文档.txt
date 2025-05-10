@@ -1,0 +1,160 @@
+所有接口      code 为 1 表示成功，其他表示失败
+            data    封装数据
+            msg     提示信息
+
+患者分页查询
+基本信息
+Path： /patient/page
+Method： GET
+
+请求参数 Query
+
+参数名称	    是否必须	 	备注
+patientId	否	 	患者编号
+name	    否	 	患者名称
+page	    是	 	页码
+pageSize	是	 	每页记录数
+
+返回数据
+名称	        类型	                    是否必须	默认值	备注	其他信息
+code	    number	                必须
+msg	        null	                非必须
+data	    json	                非必须
+├─ total	number	                必须		总记录数
+├─ records	object []	            必须		当前页数据
+    ├─ id	        integer	        必须
+    ├─ name	        string	        必须
+    ├─ patientId	string	        必须
+    ├─ age  	    string	        必须
+    ├─ sex  	    string	        必须
+    ├─ image	    string	        必须
+    ├─ updateTime   string	        必须
+
+根据id查询患者
+基本信息
+Path： /patient/{id}
+Method： GET
+
+请求参数 路径参数
+
+参数名称	    备注
+id	    	患者主键id
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	必须
+    ├─ id	            integer	    非必须
+    ├─ patientId	    string	    必须
+    ├─ name	            string	    必须
+    ├─ sex	            string	    必须
+    ├─ age	            string	    必须
+    ├─ description	    string	    非必须
+    ├─ image	        string	    非必须
+    ├─ imageList	    List<string>	非必须  字符串数组    图片列表
+msg	string	非必须
+
+根据id 增加患者图片
+基本信息
+Path： /patient/upload
+Method： DELETE
+
+请求参数 body  表单提交
+参数名称	    类型          备注
+id	    	Integer     患者主键id
+file	    File        图片文件
+  const formData = new FormData();
+  formData.append('id', this.ruleForm.id);
+  formData.append('file', options.file);
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
+
+根据id 删除患者图片
+基本信息
+Path： /patient/deleteImage
+Method： DELETE
+
+请求参数 Body
+参数名称	    类型          备注
+id	    	Integer     患者主键id
+imageUrl	String      图片地址
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
+
+
+
+修改患者信息
+Path： /patient
+Method： PUT
+
+请求参数 Body
+
+名称	            类型	        是否必须	默认值	备注	其他信息
+id	            integer	    非必须
+patientId	    string	    必须
+name	        string	    必须
+sex	            string	    必须
+age	            string	    必须
+description	    string	    非必须
+image	        string	    非必须
+imageList	    List<string>	非必须  字符串数组    图片列表
+
+
+返回数据
+名称	类型	是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
+
+新增患者
+基本信息
+Path： /patient
+Method： POST
+
+请求参数 Body
+名称	            类型	        是否必须	    默认值	备注	其他信息
+id	            integer	    非必须
+patientId	    string	    必须
+name	        string	    必须
+sex	            string	    必须
+age	            string	    必须
+description	    string	    非必须
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
+
+批量删除患者
+基本信息
+Path： /patient
+Method： DELETE
+
+请求参数 Query
+
+参数名称	类型  是否必须	    示例	备注
+ids	    List     是	        1,2,3	批量患者id，之间用逗号分隔
+
+返回数据
+名称	        类型	        是否必须	默认值	备注	其他信息
+code	    integer	    必须
+data	    json	    非必须
+msg	string	非必须
+
+
+
+
+
+
+
+
+

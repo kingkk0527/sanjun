@@ -1,0 +1,40 @@
+{
+  "id": "2552591",
+  "name": "rjwm",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+
+    {
+      "icon_id": "21641542",
+      "name": "employee",
+      "font_class": "employee",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "21641545",
+      "name": "user",
+      "font_class": "user",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+
+
+    {
+      "icon_id": "21641548",
+      "name": "lock",
+      "font_class": "lock",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "21641611",
+      "name": "dish",
+      "font_class": "dish",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    }
+  ]
+}

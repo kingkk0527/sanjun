@@ -1,0 +1,20 @@
+{
+  "name": "医院后台系统",
+  "short_name": "Vue Ts Admin",
+  "icons": [
+    {
+      "src": "医院logo图标.ico",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "医院logo图标.ico",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#4DBA87"
+}

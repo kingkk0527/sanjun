@@ -1,0 +1,175 @@
+
+用户登录
+Path： /employee/login
+Method： POST
+
+请求参数 body
+名称	           类型	是否必须	默认值	备注	其他信息
+password	string	必须		        密码
+username	string	必须		        用户名
+
+返回数据
+名称	        类型	        是否必须	默认值	备注	其他信息
+code	    integer	    必须
+data	    json	    非必须		    用户登录返回的数据格式
+├─ id	    integer	    非必须		    主键值
+├─ name	    string	    非必须		    姓名
+├─ userName	string	    非必须		    用户名
+├─ phone	string	    非必须		    手机号
+├─ password	string	    非必须		    密码
+├─ role 	string	    必须		        用户权限   admin  管理员  user  普通用户
+├─ token	string	    非必须		    登录安全控制token
+msg	string	非必须
+
+用户注册    注意注册账号默认 role 为 user
+Path： /employee/register
+Method： POST
+
+请求参数 body
+名称	           类型	   是否必须	 	备注	其他信息
+name	    string	    必须		    姓名
+username	string	    必须		    用户名
+phone	    string	    必须		    手机号
+password	string	    必须		    密码
+
+
+返回数据
+名称	    类型	        是否必须	默认值	备注	其他信息
+code	integer	    必须       成功失败  1 成功 0 失败
+data	json	    非必须
+msg	    string	    非必须
+
+退出登录
+基本信息
+Path： /employee/logout
+Method： POST
+
+请求参数 无 直接返回成功就行
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
+
+用户分页查询
+基本信息
+Path： /employee/page
+Method： GET
+
+请求参数 Query
+
+参数名称	    是否必须		    备注
+name	    否	    	    用户姓名
+page	    是	   	        页码
+pageSize	是	    	    每页记录数
+
+返回数据
+名称	                类型	            是否必须	    默认值	备注	其他信息
+code	            integer/number	必须
+msg	                null	        非必须
+data	            json	        必须
+├─ total	        number	        必须
+├─ records	        object []       必须            数据list
+    ├─ id	        number	    必须            主键值
+    ├─ username	string	        必须        账号
+    ├─ name	    string	        必须        姓名
+    ├─ password	string	        必须        密码
+    ├─ phone	string	        必须        手机号
+    ├─ role	    string	        必须        角色
+
+
+新增用户
+
+Path： /employee
+Method： POST
+
+请求参数  Body
+名称	        类型	    是否必须	备注	其他信息
+username	string	必须     账号
+name	    string	必须		姓名
+phone	    string	必须		手机号
+password	string	必须		密码
+role	    string	必须		角色
+
+返回数据
+名称	        类型	是否必须	默认值	备注	其他信息
+code	    integer	必须
+data	    json	非必须
+msg	        string	非必须
+
+根据id查询用户
+
+Path： /employee/{id}
+Method： GET
+
+请求参数  路径参数
+参数名称	 备注
+id	     用户id
+
+返回数据
+名称	            类型	        是否必须	默认值	备注	其他信息
+code	        integer	    必须
+data	        json	    必须
+    ├─ id	    integer	    必须
+    ├─ username	string	    必须
+    ├─ name	    string	    必须
+    ├─ password	string	    必须
+    ├─ phone	string	    必须
+    ├─ password	string	    必须
+    ├─ role	    string	    必须
+msg	            string	    非必须
+
+编辑用户信息
+基本信息
+Path： /employee
+Method： PUT
+
+请求参数 Body
+
+名称	        类型	        是否必须	默认值	备注	其他信息
+id	        integer	    必须
+username	string	    必须
+name	    string	    必须
+phone	    string	    必须
+password	string	    必须
+role	    string	    必须
+
+返回数据
+名称	        类型	    是否必须
+code	    integer	必须
+data	    json	非必须
+msg	        string	非必须
+
+修改密码
+基本信息
+Path： /employee/editPassword
+Method： PUT
+请求参数 Body
+
+名称	            类型	    是否必须	默认值	备注	其他信息
+Id	            integer	必须		用户id
+newPassword	    string	必须		新密码
+oldPassword	    string	必须		旧密码
+
+返回数据
+名称	        类型	是否必须	默认值	备注	其他信息
+code	    integer	必须
+data	    json	非必须
+msg	        string	非必须
+
+
+
+删除用户账号
+Path： /employee/${id}
+Method： delete
+
+请求参数 路径参数
+参数名称	 	    备注
+id	        主键id
+
+返回数据
+名称	    类型	    是否必须	默认值	备注	其他信息
+code	integer	必须
+data	json	非必须
+msg	    string	非必须
