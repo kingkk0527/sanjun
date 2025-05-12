@@ -29,7 +29,7 @@ module.exports = {
     },
     proxy: {
       '/api': {
-        target: process.env.VUE_APP_SOCKET_URL, // 跨域地址 默认 VUE_APP_URL
+        target: process.env.VUE_APP_URL, // 跨域地址 默认 VUE_APP_URL 可以去.env.development 里面配置
         ws: false, // 是否启用websockets
         secure: true, // 如果是https接口，需要配置这个参数 默认 false
         changeOrigin: true, // 是否跨域
