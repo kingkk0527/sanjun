@@ -16,8 +16,8 @@ import { getToken } from '@/utils/cookies';
 export const getPatientPage = (params: any) => {
   return request({
     url: '/patient/page',
-    method: 'get',
-    params
+    method: 'post',
+    data: { ...params }
   });
 };
 

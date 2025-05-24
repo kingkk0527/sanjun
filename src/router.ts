@@ -105,8 +105,8 @@ router.beforeEach((to, from, next) => { // TODO 权限控制路由
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
   // 验证需要权限的路由
-  if (to.matched.some(record => record.meta.roles)) {
-    const requiredRoles = (to.meta.roles || []) as string[];
+  if (to.matched.some(record => record.meta.roles)) { //  验证用户权限
+    const requiredRoles = (to.meta.roles || []) as string[];  // 获取当前路由需要的权限
     const userRole = userInfo.role || '';
 
     if (!requiredRoles.includes(userRole)) {
