@@ -5,7 +5,7 @@ import router from '@/router';
 
 const service = axios.create({ // 创建自定义axios实例，隔离全局配置
   baseURL: process.env.VUE_APP_BASE_API, // 基础API地址，通过环境变量注入（对应.env文件中的配置）控制环境切换（开发/生产）
-  timeout: 600000 // 请求超时时间（单位：毫秒），10分钟超时适用于大文件上传场景
+  timeout: 60000000 // 请求超时时间（单位：毫秒），10分钟超时适用于大文件上传场景
 });
 
 // Request interceptors
