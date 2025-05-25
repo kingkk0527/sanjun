@@ -26,7 +26,7 @@ export const deletePatient = (ids: string) => {
   return request({
     url: '/patient',
     method: 'delete',
-    params: { ids }
+    data: { ids }
   });
 };
 
@@ -52,7 +52,7 @@ export const addPatient = (params: any) => {
 export const queryPatientById = (id: string | (string | null)[]) => {
   return request({
     url: `/patient/${id}`,
-    method: 'get'
+    method: 'post'
   });
 };
 

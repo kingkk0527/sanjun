@@ -148,7 +148,7 @@ Method： PUT
 请求参数 Body
 
 名称	            类型	    是否必须	默认值	备注	其他信息
-Id	            integer	必须		用户id
+id	            integer	必须		用户id
 newPassword	    string	必须		新密码
 oldPassword	    string	必须		旧密码
 

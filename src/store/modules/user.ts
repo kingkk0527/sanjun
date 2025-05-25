@@ -12,13 +12,14 @@ export interface IUserState {
   introduction: string
   userInfo: any
   roles: string[]
-  username: string
+  userName: string
 }
 
 @Module({ 'dynamic': true, store, 'name': 'user' })
 class User extends VuexModule implements IUserState {
   public token = getToken() || ''
   public name = ''
+  public id : number = null
   public avatar = ''
   // @ts-ignore
   public storeId: string = getStoreId() || ''
@@ -26,11 +27,15 @@ class User extends VuexModule implements IUserState {
   public userInfo = {}
   public role = ''
   public roles: string[] = []
-  public username = Cookies.get('username') || ''
+  public userName = Cookies.get('userName') || ''
 
   @Mutation
   private SET_TOKEN(token: string) {
     this.token = token;
+  }
+  @Mutation
+  private SET_ID(id: number) {
+    this.id = id;
   }
   @Mutation
   private SET_ROLE(token: string) {
@@ -68,14 +73,14 @@ class User extends VuexModule implements IUserState {
   }
   @Mutation
   private SET_USERNAME(name: string) {
-    this.username = name;
+    this.userName = name;
   }
 
   @Action
-  public async Login(userInfo: { username: string, password: string }) { // TODO 登陆
-    let { username, password } = userInfo;
-    username = username.trim();
-    const { data } = await login({ username, password });
+  public async Login(userInfo: { userName: string, password: string }) { // TODO 登陆
+    let { userName, password } = userInfo;
+    userName = userName.trim();
+    const { data } = await login({ userName, password });
     if (String(data.code) === '1') {
       console.log(data.data);
       if (data.data.role === 'admin') {
@@ -90,12 +95,13 @@ class User extends VuexModule implements IUserState {
       }
 
       // 设置vuex中属性的值
-      this.SET_USERNAME(username);
+      this.SET_USERNAME(userName);
       this.SET_TOKEN(data.data.token);
       this.SET_USERINFO(data.data);
+      this.SET_ID(data.data.id);
 
       // 保存到Cookie中
-      Cookies.set('username', username);
+      Cookies.set('userName', userName);
       Cookies.set('user_info', data.data);
       Cookies.set('token', data.data.token);
       return data;
@@ -104,11 +110,11 @@ class User extends VuexModule implements IUserState {
     }
   }
   @Action
-  // public async register(userInfo: { username: string, password: string }) { // TODO 注册
+  // public async register(userInfo: { userName: string, password: string }) { // TODO 注册
   public async register(registerData) { // TODO 注册
-    // let { username, password } = userInfo;
-    // username = rusername.trim();
-    // const { data } = await register({ username, password });
+    // let { userName, password } = userInfo;
+    // userName = ruserName.trim();
+    // const { data } = await register({ userName, password });
     const { data } = await register(registerData);
     if (String(data.code) === '1') {
       return Message.success('注册成功');
@@ -161,7 +167,7 @@ class User extends VuexModule implements IUserState {
     removeToken();
     this.SET_TOKEN('');
     this.SET_ROLES([]);
-    Cookies.remove('username');
+    Cookies.remove('userName');
     Cookies.remove('user_info');
     removeUserInfo();
   }

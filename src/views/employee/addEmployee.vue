@@ -2,8 +2,8 @@
   <div class="addBrand-container">
     <div class="container">
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="180px">
-        <el-form-item label="账号" prop="username">
-          <el-input v-model="ruleForm.username" />
+        <el-form-item label="账号" prop="userName">
+          <el-input v-model="ruleForm.userName" />
         </el-form-item>
         <el-form-item label="用户姓名" prop="name">
           <el-input v-model="ruleForm.name" />
@@ -54,7 +54,7 @@ export default {
       optType: '', // 当前操作的类型，新增或者修改
       ruleForm: {
         name: '', // 用户姓名
-        username: '', // 用户账号
+        userName: '', // 用户账号
         password: '',
         phone: '',
         role: 'user' // 用户权限
@@ -63,7 +63,7 @@ export default {
         name: [
           { required: true, message: '请输入用户姓名', trigger: 'blur' }
         ],
-        username: [
+        userName: [
           { required: true, message: '请输入用户账号', trigger: 'blur' }
         ],
 
@@ -114,7 +114,7 @@ export default {
                 if (isContinue) {
                   this.ruleForm = {
                     name: '',
-                    username: '',
+                    userName: '',
                     password: '',
                     phone: '',
                     role: ''

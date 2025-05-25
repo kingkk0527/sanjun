@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { baseUrl } from '@/config.json'
-import { getToken } from '@/utils/cookies'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { baseUrl } from '@/config.json';
+import { getToken } from '@/utils/cookies';
 @Component({
   name: 'UploadImage'
 })
@@ -53,34 +53,34 @@ export default class extends Vue {
 
   @Watch('propImageUrl')
   private onChange(val) {
-    this.imageUrl = val
+    this.imageUrl = val;
   }
 
   handleError(err, file, fileList) {
-    console.log(err, file, fileList, 'handleError')
+    console.log(err, file, fileList, 'handleError');
     this.$message({
       message: '图片上传失败',
       type: 'error'
-    })
+    });
   }
 
   handleAvatarSuccess(response: any, file: any, fileList: any) {
-    this.imageUrl = `${response.data}`
-    this.$emit('imageChange', this.imageUrl)
+    this.imageUrl = `${response.data}`;
+    this.$emit('imageChange', this.imageUrl);
   }
 
   oploadImgDel() {
-    this.imageUrl = ''
-    this.$emit('imageChange', this.imageUrl)
+    this.imageUrl = '';
+    this.$emit('imageChange', this.imageUrl);
   }
   beforeAvatarUpload(file) {
-    const isLt10M = file.size / 1024 / 1024 < this.size
+    const isLt10M = file.size / 1024 / 1024 < this.size;
     if (!isLt10M) {
       this.$message({
         message: `上传文件大小不能超过${this.size}M!`,
         type: 'error'
-      })
-      return false
+      });
+      return false;
     }
   }
 }

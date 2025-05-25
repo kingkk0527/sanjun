@@ -7,9 +7,9 @@
           <div class="login-form-title">
             <span class="title-label">欢迎登录医院后台系统</span>
           </div>
-          <el-form-item prop="username">
+          <el-form-item prop="userName">
             <el-input
-              v-model="loginForm.username"
+              v-model="loginForm.userName"
               type="text"
               auto-complete="off"
               placeholder="账号"
@@ -77,15 +77,15 @@ export default class extends Vue {
     }
   }
   private loginForm = {
-    username: 'admin',
+    userName: 'admin',
     password: '123456'
   } as {
-    username: String
+    userName: String
     password: String
   }
 
   loginRules = {
-    username: [{ validator: this.validateUsername, trigger: 'blur' }],
+    userName: [{ validator: this.validateUsername, trigger: 'blur' }],
     password: [{ validator: this.validatePassword, trigger: 'blur' }]
   }
   private loading = false
@@ -93,7 +93,6 @@ export default class extends Vue {
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {}
-
   // 登录
   private handleLogin() {
     (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {

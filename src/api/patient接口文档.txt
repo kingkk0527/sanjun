@@ -44,11 +44,11 @@ id	    	患者主键id
 名称	    类型	    是否必须	默认值	备注	其他信息
 code	integer	必须
 data	json	必须
-    ├─ id	            integer	    非必须
-    ├─ patientId	    string	    必须
-    ├─ name	            string	    必须
-    ├─ sex	            string	    必须
-    ├─ age	            string	    必须
+    ├─ id	            integer	    必须
+    ├─ patientId	    string	    非必须
+    ├─ name	            string	    非必须
+    ├─ sex	            string	    非必须
+    ├─ age	            string	    非必须
     ├─ description	    string	    非必须
     ├─ image	        string	    非必须
     ├─ imageList	    List<string>	非必须  字符串数组    图片列表

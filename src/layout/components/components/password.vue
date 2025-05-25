@@ -37,76 +37,77 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Form as ElForm, Input , Message } from 'element-ui'
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Form as ElForm, Input, Message } from 'element-ui';
 // 接口
-import { editPassword } from '@/api/employee'
+import { editPassword } from '@/api/employee';
 
 // 在组件中导入用户模块
-import { UserModule } from '@/store/modules/user'
+import { UserModule } from '@/store/modules/user';
 
 // 访问用户信息
-const userInfo = UserModule.userInfo
-const userId = UserModule.userInfo.id
+const userInfo = UserModule.userInfo;
+// const id = UserModule.userInfo.id;
 @Component({
-  name: 'Password',
+  name: 'Password'
 })
 export default class extends Vue {
   @Prop() private dialogFormVisible!: any
   private validatePwd = (rule: any, value: any, callback: Function) => {
-    const reg = /^[0-9A-Za-z]{6,20}$/
+    const reg = /^[0-9A-Za-z]{6,20}$/;
     if (!value) {
-      callback(new Error('请输入'))
+      callback(new Error('请输入'));
     } else if (!reg.test(value)) {
-      callback(new Error('6 - 20位密码，数字或字母，区分大小写'))
+      callback(new Error('6 - 20位密码，数字或字母，区分大小写'));
     } else {
-      callback()
+      callback();
     }
   }
   private validatePass2 = (rule, value, callback) => {
     if (!value) {
-      callback(new Error('请再次输入密码'))
+      callback(new Error('请再次输入密码'));
     } else if (value !== this.form.newPassword) {
-      callback(new Error('密码不一致，请重新输入密码'))
+      callback(new Error('密码不一致，请重新输入密码'));
     } else {
-      callback()
+      callback();
     }
   }
   rules = {
     oldPassword: [{ validator: this.validatePwd, trigger: 'blur' }],
     newPassword: [{ validator: this.validatePwd, trigger: 'blur' }],
-    affirmPassword: [{ validator: this.validatePass2, trigger: 'blur' }],
+    affirmPassword: [{ validator: this.validatePass2, trigger: 'blur' }]
   }
   private form = {} as any
   private affirmPassword = ''
   handleSave() {
-    (this.$refs.form as ElForm).validate(async (valid: boolean) => {
+    (this.$refs.form as ElForm).validate(async(valid: boolean) => {
       if (valid) {
         const parnt = {
-          Id: userId, // 添加用户ID（假设使用Vuex存储用户信息）
+          // id: id, // 添加用户ID（假设使用Vuex存储用户信息）
+          id: UserModule.id,
           oldPassword: this.form.oldPassword,
-          newPassword: this.form.newPassword,
-        }
+          newPassword: this.form.newPassword
+        };
         try {
-          const res = await editPassword(parnt)
+          const res = await editPassword(parnt);
           if (res.data.code === 1) {
-            this.$message.success('密码修改成功！')
+            this.$message.success('密码修改成功！');
             this.$emit('handleclose')
-            ;(this.$refs.form as ElForm).resetFields()
+            ;(this.$refs.form as ElForm).resetFields();
           } else {
-            this.$message.error(res.data.msg|| '密码修改失败')
+            this.$message.error(res.data.msg || '密码修改失败');
           }
         } catch (error) {
-          this.$message.error('请求失败，请检查网络')
+          this.$message.error('请求失败，请检查网络');
         }
       } else {
-        return false
+        return false;
       }
-    })
+    });
   }
   handlePwdClose() {
-    (this.$refs.form as ElForm).resetFields()
-    this.$emit('handleclose')
+    (this.$refs.form as ElForm).resetFields();
+    this.$emit('handleclose');
   }
 }
 </script>

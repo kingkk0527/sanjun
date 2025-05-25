@@ -7,9 +7,9 @@
           <div class="login-form-title">
             <span class="title-label">欢迎注册医院后台系统</span>
           </div>
-          <el-form-item prop="username">
+          <el-form-item prop="userName">
             <el-input
-              v-model="loginForm.username"
+              v-model="loginForm.userName"
               type="text"
               auto-complete="off"
               placeholder="账号"
@@ -101,13 +101,13 @@ export default class extends Vue {
     }
   }
   private loginForm = {
-    username: '',
+    userName: '',
     password: '',
     name: '',
     phone: '',
     confirmPassword: ''
   } as {
-    username: String
+    userName: String
     password: String
     name: String
     phone: String
@@ -115,7 +115,7 @@ export default class extends Vue {
   }
 
   loginRules = {
-    username: [{ validator: this.validateUsername, trigger: 'blur' }],
+    userName: [{ validator: this.validateUsername, trigger: 'blur' }],
     password: [{ validator: this.validatePassword, trigger: 'blur' }],
     name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
     phone: [
@@ -150,7 +150,7 @@ export default class extends Vue {
       if (valid) {
         this.loading = true;
         const registerData = {
-          username: this.loginForm.username,
+          userName: this.loginForm.userName,
           password: this.loginForm.password,
           name: this.loginForm.name,
           phone: this.loginForm.phone

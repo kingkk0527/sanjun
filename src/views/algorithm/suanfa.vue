@@ -41,8 +41,15 @@
                 :auto-upload="false"
                 :show-file-list="false"
               >
-                <el-button slot="trigger" size="small" type="primary">
+                <el-button slot="trigger" size="small" type="primary" >
                   选择文件
+                </el-button>
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="openSelectPatientDialog"
+                >
+                  {{ selectedPatient ? selectedPatient.name : '选择患者' }}
                 </el-button>
                 <el-button type="success" size="small" @click="uploadfile">
                   上传分析
@@ -63,6 +70,7 @@
               autoplay
             />
           </div>
+<!--          <el-button @click="testVideoUrl">测试视频链接</el-button>-->
 
           <div v-if="imageUrl || videoUrl" class="image-preview">
             <img
@@ -261,12 +269,73 @@
     </div>
   </div>
 </el-dialog>
+    <!-- 患者选择弹窗 -->
+    <el-dialog
+      title="选择患者"
+      :visible.sync="selectDialogVisible"
+      width="60%"
+    >
+      <label style="margin: 10px">患者姓名：</label>
+      <el-input v-model="inputName"
+                placeholder="患者姓名"
+                style="width: 15%"
+                clearable
+                @clear="init"
+                @keyup.enter.native="initFun"
+      />
+      <label style="margin: 10px">患者编号：</label>
+      <el-input v-model="patientId"
+                placeholder="患者编号"
+                style="width: 15%"
+                clearable
+                @clear="init"
+                @keyup.enter.native="initFun"
+      />
+      <el-button
+        type="success"
+        size="small"
+        @click="initFun"  style="margin-left: 10px;"
+      >
+        查询
+      </el-button>
+      <div class="patient-select-container">
+        <el-table
+          :data="patientList"
+          @row-click="handlePatientSelect"
+          highlight-current-row
+        >
+          <el-table-column prop="name" label="姓名" />
+          <el-table-column prop="patientId" label="患者编号" />
+          <el-table-column label="性别">
+            <template slot-scope="{ row }">
+              {{ row.sex === '1' ? '男' : '女' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="age" label="年龄" />
+        </el-table>
+        <!-- 分页组件 -->
+        <el-pagination
+          :page-sizes="patientPageSizes"
+          :page-size="patientPageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="patientTotal"
+          :current-page="patientPage"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"  style="margin-top: 16px; text-align: center;"
+        />
+      </div>
+
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="selectDialogVisible = false">取 消</el-button>
+  </span>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
 import { upload } from '@/api/algorithm.ts';
+import { getPatientPage } from '@/api/Patient';
 import * as echarts from 'echarts';
 
 export default {
@@ -276,7 +345,6 @@ export default {
       imageUrl: '',
       videoUrl: '',
       analysisResult: '', // 分析结果详情
-      analysisAlgorithm: '', // 分析使用算法
       analysisResultUrl: '', // 分析结果URL
       cameraStream: null, // 摄像头流
       isVideo: false, // 是否为视频
@@ -292,7 +360,17 @@ export default {
         resolution: 100, // 分辨率
         contrast: 100, // 对比度
         brightness: 100 // 亮度
-      }
+      },
+      selectedPatient: null, // 当前选中的患者对象
+      patientList: [], // 所有可选患者数据
+      selectDialogVisible: false, // 患者选择弹窗是否可见
+      patientPage: 1, // 当前页码
+      patientPageSize: 10, // 每页条数
+      patientPageSizes: [10, 20, 30, 50], // 每页条数选项
+      patientTotal: 0, // 总条数
+      loadingPatients: false, // 加载状态
+      inputName: '',
+      patientId: ''
 
     };
   },
@@ -309,12 +387,51 @@ export default {
     }
   },
   methods: {
+    testVideoUrl() {
+      if (!this.videoUrl) {
+        this.$message.error('没有可用的视频链接');
+        return;
+      }
+
+      // 创建 video 元素
+      const video = document.createElement('video');
+      video.src = this.videoUrl;
+      video.controls = true;
+      video.style.width = '100%';
+      video.style.maxWidth = '800px';
+      video.style.marginTop = '20px';
+
+      // 创建容器并插入页面
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '20px';
+      container.style.right = '20px';
+      container.style.zIndex = '9999';
+      container.style.backgroundColor = '#fff';
+      container.style.padding = '20px';
+      container.style.borderRadius = '8px';
+      container.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+      container.appendChild(video);
+
+      document.body.appendChild(container);
+
+      // 自动移除
+      setTimeout(() => {
+        document.body.removeChild(container);
+      }, 6000); // 显示6秒后自动关闭
+    },
+
     // 图片选择处理
     handleImageChange(file) {
       this.currentFile = file.raw; // 直接存储文件对象
       this.isVideo = file.raw.type.startsWith('video/'); // 判断是否为视频
+      // 释放之前的 URL（避免内存泄漏）
+      if (this.videoUrl) {
+        URL.revokeObjectURL(this.videoUrl);
+        this.videoUrl = null;
+      }
       if (this.isVideo) { // 生成预览URL
-        this.videoUrl = URL.createObjectURL(file.raw); // 生成视频URL
+        this.videoUrl = URL.createObjectURL(file.raw); // 生成新的视频URL
         this.imageUrl = '';
       } else {
         const reader = new FileReader();
@@ -371,11 +488,16 @@ export default {
         this.$message.error('请先选择文件');
         return;
       }
+      if (!this.selectedPatient) {
+        this.$message.warning('请选择一位患者');
+        return;
+      }
 
       const formData = new FormData();
       formData.append('algorithm', this.selectedAlgorithm);
       formData.append('media_type', this.isVideo ? 'video' : 'image');
       formData.append('file', this.currentFile);
+      formData.append('id', this.selectedPatient.id);
 
       try {
         await upload(formData).then((res) => { // TODO 上传图片到后端
@@ -383,10 +505,7 @@ export default {
             // this.analysisResultUrl = `http://localhost:8080${res.data.data.analysisResultUrl}`; // 测试传输加端口
             this.analysisResultUrl = res.data.data.analysisResultUrl;
             this.analysisResult = res.data.data.analysisResult;
-            this.analysisAlgorithm = res.data.data.analysisAlgorithm;
             this.$message.success('上传成功,等待分析完成，查看右侧结果');
-            // this.analysisResultUrl = this.imageUrl; // 测试传输
-            // this.$message.success(this.analysisResult.algorithm) // 测试看看算法类型
           } else {
             this.$message.error(res.data.msg);
           }
@@ -606,8 +725,58 @@ export default {
         };
         this.initCanvas();
       });
-    }
+    },
 
+    async initFun() {
+      this.patientPage = 1; // 重置为第一页
+      await this.loadPatients();
+    },
+
+    async openSelectPatientDialog() {
+      this.selectDialogVisible = true;
+      await this.loadPatients(); // 使用当前页码加载数据
+    },
+
+    async loadPatients() {
+      this.loadingPatients = true;
+      try {
+        const res = await getPatientPage({
+          page: this.patientPage,
+          pageSize: this.patientPageSize,
+          name: this.inputName || undefined, // 支持搜索姓名（可选）
+          patientId: this.patientId || undefined // 支持搜索编号（可选）
+        });
+
+        if (res.data.code === 1) {
+          this.patientList = res.data.data.records || [];
+          this.patientTotal = Number(res.data.data.total);
+        } else {
+          this.$message.error('获取患者列表失败：' + res.data.msg);
+          this.patientList = [];
+          this.patientTotal = 0;
+        }
+      } catch (err) {
+        this.$message.error('获取患者列表失败：' + res.data.msg);
+      } finally {
+        this.loadingPatients = false;
+      }
+    },
+
+    handlePatientSelect(row) {
+      this.selectedPatient = row;
+      this.selectDialogVisible = false;
+    },
+
+    async handleSizeChange(val) {
+      this.patientPageSize = val;
+      this.patientPage = 1; // 切换每页条数时重置为第一页
+      await this.loadPatients();
+    },
+
+    async handleCurrentChange(val) {
+      this.patientPage = val;
+      await this.loadPatients();
+    }
   }
 };
 </script>
@@ -787,5 +956,20 @@ export default {
     margin: 0 auto;
   }
 
+}
+
+.patient-select-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.el-table {
+  flex: 1;
+}
+
+.el-pagination {
+  margin-top: 16px;
+  text-align: center;
 }
 </style>

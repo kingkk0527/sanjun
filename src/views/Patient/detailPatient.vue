@@ -28,7 +28,7 @@
         </div>
 
         <div class="address">
-          <el-form-item label="病情描述:" prop="region" >
+          <el-form-item label="病情描述:" prop="description" >
             <el-input v-model="ruleForm.description" type="textarea" :rows="5"
                       maxlength="500" placeholder="病情描述，最长2000字" style="width: 1000px" />
           </el-form-item>
@@ -87,7 +87,7 @@
                     添加图片
                   </el-button>
                   <p style="margin:0; color: #909399; font-size: 12px;">
-                    建议上传 PNG/JPEG/JPG 类型 图片大小不超过2M
+                    建议上传 PNG/JPEG/JPG 类型 图片大小不超过10M
                   </p>
                 </div>
                 </el-upload>
@@ -110,11 +110,8 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import HeadLable from '@/components/HeadLable/index.vue';
 import ImageUpload from '@/components/ImgUpload/index.vue';
 import { queryPatientById, addPatient, editPatient, deletePatientImage } from '@/api/Patient';
-import { baseUrl } from '@/config.json';
 import { getToken } from '@/utils/cookies';
-import { types } from 'sass';
 import axios from 'axios';
-import List = types.List;
 
 @Component({ // 组件注册
   name: 'detailPatient',
@@ -191,6 +188,23 @@ export default class extends Vue {
           },
           trigger: 'blur'
         }
+      ],
+      // 患者编号 必填
+      patientId: [
+        {
+          required: true,
+          message: '请输入患者编号',
+          trigger: 'blur'
+        }
+      ],
+      // 病情描述 必填
+      description: [
+        {
+          required: true,
+          message: '病情描述不能为空',
+          max: 2000,
+          trigger: 'blur'
+        }
       ]
     };
   }
@@ -205,14 +219,14 @@ export default class extends Vue {
   // 图片上传前校验
   beforeUpload(file) {
     const isImage = ['image/png', 'image/jpeg', 'image/jpg'].includes(file.type);
-    const isLt2M = file.size / 1024 / 1024 < 2;
+    const isLt10M = file.size / 1024 / 1024 < 10;
 
     if (!isImage) {
       this.$message.error('只能上传图片格式!');
       return false;
     }
-    if (!isLt2M) {
-      this.$message.error('图片大小不能超过2MB!');
+    if (!isLt10M) {
+      this.$message.error('图片大小不能超过10MB!');
       return false;
     }
     return true;
@@ -224,7 +238,6 @@ export default class extends Vue {
     const formData = new FormData();
     formData.append('file', options.file);
     formData.append('id', this.ruleForm.id);
-    // this.$message.success(this.ruleForm.id);
 
     axios.post('/api/patient/upload', formData, {
       headers: {
@@ -445,6 +458,12 @@ export default class extends Vue {
     .el-textarea__inner {
       min-height: 80px !important;  // 降低文本域高度
     }
+  }
+
+  .tableLab {
+    display: flex;
+    float: right;
+    gap: 20px; // 设置三个组件之间的统一间距
   }
 }
 </style>

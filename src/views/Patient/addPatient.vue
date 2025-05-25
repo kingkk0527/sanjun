@@ -50,7 +50,7 @@
 
         <div class="address">
           <el-form-item label="病历信息:"
-                        prop="region"
+                        prop="description"
           >
             <el-input
               v-model="ruleForm.description"
@@ -140,9 +140,9 @@ export default class extends Vue {
             if (!value) {
               callback(new Error('请输入患者名称'));
             } else {
-              const reg = /^([A-Za-z0-9\u4e00-\u9fa5]){2,20}$/;
+              const reg = /^([A-Za-z0-9\u4e00-\u9fa5]){1,20}$/;
               if (!reg.test(value)) {
-                callback(new Error('患者名称输入不符，请输入2-20个字符'));
+                callback(new Error('患者名称输入不符，请输入1-20个字符'));
               } else {
                 callback();
               }
@@ -169,6 +169,23 @@ export default class extends Vue {
               callback();
             }
           },
+          trigger: 'blur'
+        }
+      ],
+      // 患者编号 必填
+      patientId: [
+        {
+          required: true,
+          message: '请输入患者编号',
+          trigger: 'blur'
+        }
+      ],
+      // 病情描述 必填
+      description: [
+        {
+          required: true,
+          message: '病情描述不能为空',
+          max: 2000,
           trigger: 'blur'
         }
       ]

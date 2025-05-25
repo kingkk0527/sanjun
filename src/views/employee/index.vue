@@ -20,7 +20,7 @@ import { getEmployeeList } from '../../api/employee';
         style="width: 100%"
       >
         <el-table-column prop="name" label="用户姓名" width="180" />
-        <el-table-column prop="username" label="账号" width="180" />
+        <el-table-column prop="userName" label="账号" width="180" />
         <el-table-column prop="phone" label="手机号" />
         <el-table-column prop="password" label="密码" />
         <el-table-column prop="role" label="用户权限">
@@ -101,7 +101,7 @@ export default {
     },
     // 删除方法
     handleDelete(row) {
-      if (row.username === 'admin') {
+      if (row.userName === 'admin') {
         this.$message.error('admin为系统的超级管理员账号，不能删除！');
         return;
       }
@@ -125,7 +125,7 @@ export default {
     },
     // 跳转到修改员工页面（组件）
     handleUpdateEmp(row) {
-      if (row.username === 'admin') {
+      if (row.userName === 'admin') {
         this.$message.error('admin为系统的超级管理员账号，不能修改！');
         return;
       }

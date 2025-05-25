@@ -18,6 +18,7 @@ export const login = (data: any) =>
     'method': 'post',
     data: data
   });
+
 export const register = (data: any) =>
   request({
     'url': '/employee/register',
@@ -37,8 +38,8 @@ export const userLogout = (params: any) =>
 export const getEmployeeList = (params: any) =>
   request({
     'url': `/employee/page`,
-    'method': 'get',
-    'params': params
+    method: 'post',
+    data: { ...params }
   });
 
 export function deleteEmployee(id: number) {
@@ -57,7 +58,7 @@ export const addEmployee = (params: any) =>
 export const queryEmployeeById = (id: number) =>
   request({
     'url': `/employee/${id}`,
-    'method': 'GET'
+    'method': 'POST'
   });
 
 // 修改员工

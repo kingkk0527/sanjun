@@ -10,7 +10,7 @@
                   @clear="init"
                   @keyup.enter.native="initFun"
         />
-        <label style="margin-right: 30px">患者编号：</label>
+        <label style="margin: 10px">患者编号：</label>
         <el-input v-model="patientId"
                   placeholder="请填写患者编号"
                   style="width: 14%"
@@ -18,7 +18,7 @@
                   @clear="init"
                   @keyup.enter.native="initFun"
         />
-        <el-button class="normal-btn continue" @click="init(true)">
+        <el-button type="success" style="margin: 10px" @click="init(true)">
           查询
         </el-button>
 
@@ -111,7 +111,6 @@ import { Component, Vue } from 'vue-property-decorator';
 import HeadLable from '@/components/HeadLable/index.vue';
 import { getPatientPage, deletePatient } from '@/api/Patient';
 import Empty from '@/components/Empty/index.vue';
-import { baseUrl } from '@/config.json';
 
 @Component({
   name: 'patientType',
@@ -232,7 +231,7 @@ export default class extends Vue {
       border-radius: 4px;
       //查询黑色按钮样式
       .normal-btn {
-        background: #333333;
+        background: rgba(86, 196, 74, 0.99);
         color: white;
         margin-left: 20px;
       }
