@@ -37,12 +37,14 @@
               <el-upload
                 class="upload-demo"
                 action="#"
-                :on-change="(file) => handleImageChange(file)"
+                :on-change="(file) => handleFileChange(file)"
                 :auto-upload="false"
                 :show-file-list="false"
+                accept=".png,.jpg,.jpeg,.bmp,.webp,.mp4,.avi,.mov,.mkv,.gz"
               >
+                <!-- 限制只接受 .gz 文件 -->
                 <el-button slot="trigger" size="small" type="primary" >
-                  选择文件
+                  {{ currentFile ? (currentFile.name.length > 5 ? currentFile.name.slice(0, 5) + '...' : currentFile.name) : '选择文件' }}
                 </el-button>
                 <el-button
                   type="primary"
@@ -70,7 +72,6 @@
               autoplay
             />
           </div>
-<!--          <el-button @click="testVideoUrl">测试视频链接</el-button>-->
 
           <div v-if="imageUrl || videoUrl" class="image-preview">
             <img
@@ -86,6 +87,9 @@
               autoplay
               style="width: 80%; height: 60vh; object-fit: contain;"
             />
+          </div>
+          <div v-else-if="currentFile && currentFile.name.endsWith('.gz')" class="image-placeholder" style="color: #42b983;">
+            <i class="el-icon-document"></i> 已选择压缩包：{{ currentFile.name }}
           </div>
 
           <div v-else class="image-placeholder">
@@ -422,24 +426,40 @@ export default {
     },
 
     // 图片选择处理
-    handleImageChange(file) {
+    handleFileChange(file) {
+      const selectedFile = file.raw;
       this.currentFile = file.raw; // 直接存储文件对象
-      this.isVideo = file.raw.type.startsWith('video/'); // 判断是否为视频
-      // 释放之前的 URL（避免内存泄漏）
+      // 清除之前的 URL（避免内存泄漏）
       if (this.videoUrl) {
         URL.revokeObjectURL(this.videoUrl);
         this.videoUrl = null;
       }
-      if (this.isVideo) { // 生成预览URL
-        this.videoUrl = URL.createObjectURL(file.raw); // 生成新的视频URL
-        this.imageUrl = '';
-      } else {
+      if (this.imageUrl) {
+        URL.revokeObjectURL(this.imageUrl);
+        this.imageUrl = null;
+      }
+      // 判断文件类型
+      if (selectedFile.type.startsWith('image/')) {
+        // 图片：生成 DataURL 预览
         const reader = new FileReader();
         reader.onload = (e) => {
           this.imageUrl = e.target.result;
         };
-        reader.readAsDataURL(file.raw);
+        reader.readAsDataURL(selectedFile);
+        this.isVideo = false;
+      } else if (selectedFile.type.startsWith('video/')) {
+        // 视频：生成 Blob URL 预览
+        this.videoUrl = URL.createObjectURL(selectedFile);
+        this.isVideo = true;
+      } else if (selectedFile.name.endsWith('.gz')) {
+        // .gz 文件：直接保存，不预览
+        this.$message.success(`已选择压缩包: ${selectedFile.name}`);
+        this.isVideo = false;
+      } else {
+        // 不支持的文件类型
+        this.$message.error('不支持的文件类型');
       }
+      this.$forceUpdate(); // 强制更新视图
     },
     // 摄像头开关处理
     async toggleCamera() {
@@ -493,16 +513,24 @@ export default {
         return;
       }
 
+      let mediaType = 'other';
+      if (this.currentFile.type.startsWith('image/')) {
+        mediaType = 'image';
+      } else if (this.currentFile.type.startsWith('video/')) {
+        mediaType = 'video';
+      } else if (this.currentFile.name.endsWith('.gz')) {
+        mediaType = 'gz';
+      }
+
       const formData = new FormData();
       formData.append('algorithm', this.selectedAlgorithm);
-      formData.append('media_type', this.isVideo ? 'video' : 'image');
+      formData.append('media_type', mediaType); // image / video / gz
       formData.append('file', this.currentFile);
       formData.append('id', this.selectedPatient.id);
 
       try {
-        await upload(formData).then((res) => { // TODO 上传图片到后端
+        await upload(formData).then((res) => {
           if (res.data.code === 1) {
-            // this.analysisResultUrl = `http://localhost:8080${res.data.data.analysisResultUrl}`; // 测试传输加端口
             this.analysisResultUrl = res.data.data.analysisResultUrl;
             this.analysisResult = res.data.data.analysisResult;
             this.$message.success('上传成功,等待分析完成，查看右侧结果');
