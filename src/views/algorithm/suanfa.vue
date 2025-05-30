@@ -12,53 +12,54 @@
           <div class="camera-controls">
             <el-button-group class="header-buttons">
               <el-button
-                size="small"
-                type="primary"
-                :icon="cameraActive ? 'el-icon-switch-button' : 'el-icon-video-camera'"
-                @click="toggleCamera"
+                  size="small"
+                  type="primary"
+                  :icon="cameraActive ? 'el-icon-switch-button' : 'el-icon-video-camera'"
+                  @click="toggleCamera"
               >
                 {{ cameraActive ? '关闭摄像头' : '开启摄像头' }}
               </el-button>
               <el-button
-                size="small"
-                :disabled="!cameraActive"
-                @click="capturePhoto"
+                  size="small"
+                  :disabled="!cameraActive"
+                  @click="capturePhoto"
               >
                 拍照
               </el-button>
               <el-button
-                size="small"
-                :disabled="!cameraActive"
-                :type="isRecording ? 'danger' : 'success'"
-                @click="toggleRecording"
+                  size="small"
+                  :disabled="!cameraActive"
+                  :type="isRecording ? 'danger' : 'success'"
+                  @click="toggleRecording"
               >
                 {{ isRecording ? '停止录制' : '开始录制' }}
               </el-button>
               <el-upload
-                class="upload-demo"
-                action="#"
-                :on-change="(file) => handleFileChange(file)"
-                :auto-upload="false"
-                :show-file-list="false"
-                accept=".png,.jpg,.jpeg,.bmp,.webp,.mp4,.avi,.mov,.mkv,.gz"
+                  class="upload-demo"
+                  action="#"
+                  :on-change="(file) => handleFileChange(file)"
+                  :auto-upload="false"
+                  :show-file-list="false"
               >
-                <!-- 限制只接受 .gz 文件 -->
-                <el-button slot="trigger" size="small" type="primary" >
-                  {{ currentFile ? (currentFile.name.length > 5 ? currentFile.name.slice(0, 5) + '...' : currentFile.name) : '选择文件' }}
+                <el-button slot="trigger" size="small" type="primary">
+                  {{
+                    currentFile ? (currentFile.name.length > 5 ? currentFile.name.slice(0, 5) + '...' : currentFile.name) : '选择文件'
+                  }}
                 </el-button>
                 <el-button
-                  type="primary"
-                  size="small"
-                  @click="openSelectPatientDialog"
+                    type="primary"
+                    size="small"
+                    @click="openSelectPatientDialog"
                 >
                   {{ selectedPatient ? selectedPatient.name : '选择患者' }}
                 </el-button>
+
                 <el-button type="success" size="small" @click="uploadfile">
                   上传分析
                 </el-button>
                 <!-- TODO 摄像头预览区域 -->
 
-                <canvas ref="canvas" style="display: none;" />
+                <canvas ref="canvas" style="display: none;"/>
               </el-upload>
             </el-button-group>
           </div>
@@ -66,34 +67,34 @@
           <!-- 图片预览区域 -->
           <div class="camera-preview-container">
             <video
-              v-show="cameraActive"
-              ref="videoPreview"
-              class="camera-preview"
-              autoplay
+                v-show="cameraActive"
+                ref="videoPreview"
+                class="camera-preview"
+                autoplay
             />
           </div>
 
           <div v-if="imageUrl || videoUrl" class="image-preview">
             <img
-              v-if="imageUrl && !videoUrl"
-              :src="imageUrl"
-              :alt="selectedAlgorithm"
-              style="width: 80%; height: 60vh;"
+                v-if="imageUrl && !videoUrl"
+                :src="imageUrl"
+                :alt="selectedAlgorithm"
+                style="width: 80%; height: 60vh;"
             >
             <video
-              v-else
-              :src="videoUrl"
-              controls
-              autoplay
-              style="width: 80%; height: 60vh; object-fit: contain;"
+                v-else
+                :src="videoUrl"
+                controls
+                autoplay
+                style="width: 80%; height: 60vh; object-fit: contain;"
             />
           </div>
-          <div v-else-if="currentFile && currentFile.name.endsWith('.gz')" class="image-placeholder" style="color: #42b983;">
-            <i class="el-icon-document"></i> 已选择压缩包：{{ currentFile.name }}
+          <div v-else-if="currentFile && !isImageOrVideo(currentFile)" class="image-placeholder" style="color: #42b983;">
+            <i class="el-icon-document"></i> 已选择文件：{{ currentFile.name }}
           </div>
 
           <div v-else class="image-placeholder">
-            <i class="el-icon-upload" />
+            <i class="el-icon-upload"/>
             <p>请先上传文件获取分析结果</p>
           </div>
 
@@ -122,64 +123,64 @@
             <h2 class="section-title"> 处理结果 </h2>
             <div class="button-group">
               <el-button
-                type="primary"
-                size="small"
-                :disabled="!analysisResultUrl"
-                style="
+                  type="primary"
+                  size="small"
+                  :disabled="!analysisResultUrl"
+                  style="
                 background-color: #67C23A;
                 border-color: #67C23A;
                 color: white;
                 margin-left: 10px;
               "
-                @click="downloadAnalysisResultUrl(analysisResultUrl)"
+                  @click="downloadAnalysisResultUrl(analysisResultUrl)"
               >
                 下载图像
               </el-button>
 
               <el-button
-                type="primary"
-                size="small"
-                :disabled="!analysisResult"
-                style="margin-left: 10px;"
-                @click="detailVisible = true"
+                  type="primary"
+                  size="small"
+                  :disabled="!analysisResult"
+                  style="margin-left: 10px;"
+                  @click="detailVisible = true"
               >
                 分析详情
               </el-button>
 
               <el-button
-                type="primary"
-                size="small"
-                :disabled="!analysisResult"
-                style="
+                  type="primary"
+                  size="small"
+                  :disabled="!analysisResult"
+                  style="
               background-color: #409EFF;
               border-color: #409EFF;
               color: white;
               margin-left: 10px;
               "
-                @click="downloadAnalysisReport"
+                  @click="downloadAnalysisReport"
               >
                 下载分析详情报告
               </el-button>
 
               <el-button
-                type="primary"
-                size="small"
-                :disabled="!isMicroExpression"
-                style="margin-left: 10px;"
-                @click="showEmotionChart"
+                  type="primary"
+                  size="small"
+                  :disabled="!isMicroExpression"
+                  style="margin-left: 10px;"
+                  @click="showEmotionChart"
               >
                 微表情分析图
               </el-button>
               <el-button
-                type="primary"
-                size="small"
-                :disabled="!analysisResultUrl"
-                style="
+                  type="primary"
+                  size="small"
+                  :disabled="!analysisResultUrl"
+                  style="
                   background-color: #9c27b0;
                   border-color: #9c27b0;
                   color: white;
                   margin-left: 10px; "
-                @click="showAdjustDialog"
+                  @click="showAdjustDialog"
               >
                 多参数调节
               </el-button>
@@ -189,12 +190,12 @@
           <!-- 分析结果图展示 -->
           <template v-if="analysisResultUrl">
             <el-image
-              :src="analysisResultUrl"
-              :preview-src-list="[analysisResultUrl]"
-              style="width: 100%; height: 60vh;"/>
+                :src="analysisResultUrl"
+                :preview-src-list="[analysisResultUrl]"
+                style="width: 100%; height: 60vh;"/>
           </template>
           <div v-else class="image-placeholder">
-            <i class="el-icon-upload" />
+            <i class="el-icon-upload"/>
             <p>请先上传图片获取分析结果</p>
           </div>
 
@@ -203,81 +204,81 @@
     </el-row>
     <!-- 修改弹窗模板 -->
     <el-dialog
-      title="微情感分析图表"
-      :visible.sync="chartVisible"
-      width="55%"
-      top="5vh"
-      custom-class="chart-dialog"
-      @close="() => { if(this.chartInstance) this.chartInstance.dispose() }"
+        title="微情感分析图表"
+        :visible.sync="chartVisible"
+        width="55%"
+        top="5vh"
+        custom-class="chart-dialog"
+        @close="() => { if(this.chartInstance) this.chartInstance.dispose() }"
     >
       <div ref="chartContainer" style="width: 100%; height: 65vh; padding: 20px;"></div>
     </el-dialog>
 
     <el-dialog
-      title="分析详情"
-      :visible.sync="detailVisible"
-      width="55%"
-      top="5vh"
-      custom-class="chart-dialog"
+        title="分析详情"
+        :visible.sync="detailVisible"
+        width="55%"
+        top="5vh"
+        custom-class="chart-dialog"
     >
       <el-input
-        type="textarea"
-        :rows="20"
-        :value="analysisResult ? formatAnalysis(analysisResult) : ''"
-        readonly
-        resize="none"
-        style="overflow-y: auto; padding: 15px;"
+          type="textarea"
+          :rows="20"
+          :value="analysisResult ? formatAnalysis(analysisResult) : ''"
+          readonly
+          resize="none"
+          style="overflow-y: auto; padding: 15px;"
       />
     </el-dialog>
     <el-dialog
-  title="图像参数调节"
-  :visible.sync="adjustmentVisible"
-  width="60%"
-  top="5vh"
->
-  <div style="display: flex; flex-direction: column; height: 70vh;">
-    <!-- 图像预览 -->
-    <div style="flex: 1; min-height: 300px; margin-bottom: 20px;">
-      <canvas ref="previewCanvas" style="width: 100%; height: 100%;"></canvas>
-    </div>
+        title="图像参数调节"
+        :visible.sync="adjustmentVisible"
+        width="60%"
+        top="5vh"
+    >
+      <div style="display: flex; flex-direction: column; height: 70vh;">
+        <!-- 图像预览 -->
+        <div style="flex: 1; min-height: 300px; margin-bottom: 20px;">
+          <canvas ref="previewCanvas" style="width: 100%; height: 100%;"></canvas>
+        </div>
 
-    <!-- 调节控件 -->
-    <div class="adjustment-controls" style="overflow-y: auto; padding: 0 20px;">
-      <div class="adjust-item">
-        <span>分辨率: {{ adjustmentParams.resolution }}%</span>
-        <el-slider
-          v-model="adjustmentParams.resolution"
-          :min="5"
-          :max="200"
-          @input="handleParamChange"
-        />
+        <!-- 调节控件 -->
+        <div class="adjustment-controls" style="overflow-y: auto; padding: 0 20px;">
+          <div class="adjust-item">
+            <span>分辨率: {{ adjustmentParams.resolution }}%</span>
+            <el-slider
+                v-model="adjustmentParams.resolution"
+                :min="5"
+                :max="200"
+                @input="handleParamChange"
+            />
+          </div>
+          <div class="adjust-item">
+            <span>对比度: {{ adjustmentParams.contrast }}%</span>
+            <el-slider
+                v-model="adjustmentParams.contrast"
+                :min="5"
+                :max="200"
+                @input="handleParamChange"
+            />
+          </div>
+          <div class="adjust-item">
+            <span>亮度: {{ adjustmentParams.brightness }}%</span>
+            <el-slider
+                v-model="adjustmentParams.brightness"
+                :min="5"
+                :max="200"
+                @input="handleParamChange"
+            />
+          </div>
+        </div>
       </div>
-      <div class="adjust-item">
-        <span>对比度: {{ adjustmentParams.contrast }}%</span>
-        <el-slider
-          v-model="adjustmentParams.contrast"
-          :min="5"
-          :max="200"
-          @input="handleParamChange"
-        />
-      </div>
-      <div class="adjust-item">
-        <span>亮度: {{ adjustmentParams.brightness }}%</span>
-        <el-slider
-          v-model="adjustmentParams.brightness"
-          :min="5"
-          :max="200"
-          @input="handleParamChange"
-        />
-      </div>
-    </div>
-  </div>
-</el-dialog>
+    </el-dialog>
     <!-- 患者选择弹窗 -->
     <el-dialog
-      title="选择患者"
-      :visible.sync="selectDialogVisible"
-      width="60%"
+        title="选择患者"
+        :visible.sync="selectDialogVisible"
+        width="60%"
     >
       <label style="margin: 10px">患者姓名：</label>
       <el-input v-model="inputName"
@@ -296,36 +297,36 @@
                 @keyup.enter.native="initFun"
       />
       <el-button
-        type="success"
-        size="small"
-        @click="initFun"  style="margin-left: 10px;"
+          type="success"
+          size="small"
+          @click="initFun" style="margin-left: 10px;"
       >
         查询
       </el-button>
       <div class="patient-select-container">
         <el-table
-          :data="patientList"
-          @row-click="handlePatientSelect"
-          highlight-current-row
+            :data="patientList"
+            @row-click="handlePatientSelect"
+            highlight-current-row
         >
-          <el-table-column prop="name" label="姓名" />
-          <el-table-column prop="patientId" label="患者编号" />
+          <el-table-column prop="name" label="姓名"/>
+          <el-table-column prop="patientId" label="患者编号"/>
           <el-table-column label="性别">
             <template slot-scope="{ row }">
               {{ row.sex === '1' ? '男' : '女' }}
             </template>
           </el-table-column>
-          <el-table-column prop="age" label="年龄" />
+          <el-table-column prop="age" label="年龄"/>
         </el-table>
         <!-- 分页组件 -->
         <el-pagination
-          :page-sizes="patientPageSizes"
-          :page-size="patientPageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="patientTotal"
-          :current-page="patientPage"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"  style="margin-top: 16px; text-align: center;"
+            :page-sizes="patientPageSizes"
+            :page-size="patientPageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="patientTotal"
+            :current-page="patientPage"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange" style="margin-top: 16px; text-align: center;"
         />
       </div>
 
@@ -338,8 +339,8 @@
 </template>
 
 <script>
-import { upload } from '@/api/algorithm.ts';
-import { getPatientPage } from '@/api/Patient';
+import {upload} from '@/api/algorithm.ts';
+import {getPatientPage} from '@/api/Patient';
 import * as echarts from 'echarts';
 
 export default {
@@ -381,8 +382,8 @@ export default {
   computed: {
     isMicroExpression() {
       return this.analysisResult &&
-        this.analysisResult.algorithm &&
-        this.analysisResult.algorithm.includes('微表情图像处理');
+          this.analysisResult.algorithm &&
+          this.analysisResult.algorithm.includes('微表情图像处理');
     }
   },
   destroyed() {
@@ -425,11 +426,17 @@ export default {
       }, 6000); // 显示6秒后自动关闭
     },
 
-    // 图片选择处理
+    isImageOrVideo(file) {
+      return file && (
+          file.type.startsWith('image/') ||
+          file.type.startsWith('video/')
+      );
+    },
+    // 文件选择处理
     handleFileChange(file) {
       const selectedFile = file.raw;
-      this.currentFile = file.raw; // 直接存储文件对象
-      // 清除之前的 URL（避免内存泄漏）
+      // 清除上一次的文件引用和预览数据
+      this.currentFile = null;
       if (this.videoUrl) {
         URL.revokeObjectURL(this.videoUrl);
         this.videoUrl = null;
@@ -451,14 +458,13 @@ export default {
         // 视频：生成 Blob URL 预览
         this.videoUrl = URL.createObjectURL(selectedFile);
         this.isVideo = true;
-      } else if (selectedFile.name.endsWith('.gz')) {
-        // .gz 文件：直接保存，不预览
-        this.$message.success(`已选择压缩包: ${selectedFile.name}`);
-        this.isVideo = false;
       } else {
-        // 不支持的文件类型
-        this.$message.error('不支持的文件类型');
+        // 其他文件：直接保存，不预览，仅提示文件名
+        this.$message.success(`已选择文件: ${selectedFile.name}`);
+        this.isVideo = false;
       }
+      // 设置当前文件对象
+      this.currentFile = selectedFile;
       this.$forceUpdate(); // 强制更新视图
     },
     // 摄像头开关处理
@@ -467,7 +473,7 @@ export default {
         this.closeCamera();
       } else {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
           this.$refs.videoPreview.srcObject = stream;
           this.cameraActive = true;
         } catch (error) {
@@ -518,8 +524,12 @@ export default {
         mediaType = 'image';
       } else if (this.currentFile.type.startsWith('video/')) {
         mediaType = 'video';
-      } else if (this.currentFile.name.endsWith('.gz')) {
-        mediaType = 'gz';
+      } else {
+        const match = this.currentFile.name.match(/\.([0-9a-z]+)(?:[\?#]|$)/i);
+        if (match && match[1]) {
+        const ext = match[1].toLowerCase();
+        mediaType = ext === 'gz' ? 'gz' : ext;
+      }
       }
 
       const formData = new FormData();
@@ -540,7 +550,7 @@ export default {
         });
       } catch (error) {
         console.error(error);
-        this.$message.error('上传失败，请重试');
+        this.$message.error('上传失败，文件格式有误，请重试');
       }
     },
     // 下载分析图像
@@ -557,7 +567,7 @@ export default {
 
       // const content = this.analysisResult.details || '暂无详细分析数据';
       const content = this.analysisResult || '暂无详细分析数据';
-      const blob = new Blob([content], { type: 'text/plain' });
+      const blob = new Blob([content], {type: 'text/plain'});
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `analysis_report_${new Date().getTime()}.txt`;
@@ -579,7 +589,7 @@ export default {
         };
 
         this.mediaRecorder.onstop = () => {
-          const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+          const blob = new Blob(this.recordedChunks, {type: 'video/webm'});
           const file = new File([blob], `video_${Date.now()}.webm`, {
             type: 'video/webm'
           });
@@ -606,14 +616,14 @@ export default {
     parseEmotionData() {
       const result = this.analysisResult.details;
       const emotions = result.split(', ')
-        .filter(item => item.includes('：'))
-        .map(item => {
-          const [name, value] = item.split('：');
-          return {
-            name: name.trim(),
-            value: parseFloat(value)
-          };
-        });
+          .filter(item => item.includes('：'))
+          .map(item => {
+            const [name, value] = item.split('：');
+            return {
+              name: name.trim(),
+              value: parseFloat(value)
+            };
+          });
       return emotions.slice(1); // 去掉算法类型
     },
     // 显示图表弹窗
@@ -716,8 +726,8 @@ export default {
 
       // 计算原始比例
       const scale = Math.min(
-        maxWidth / img.width,
-        maxHeight / img.height
+          maxWidth / img.width,
+          maxHeight / img.height
       ) * (this.adjustmentParams.resolution / 100);
 
       // 设置画布实际尺寸
@@ -733,9 +743,9 @@ export default {
       // 清空画布并居中绘制
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(
-        img,
-        0, 0, img.width, img.height, // 源图像尺寸
-        0, 0, canvas.width, canvas.height // 目标尺寸（已按比例计算）
+          img,
+          0, 0, img.width, img.height, // 源图像尺寸
+          0, 0, canvas.width, canvas.height // 目标尺寸（已按比例计算）
       );
     },
 
@@ -970,14 +980,17 @@ export default {
   .adjustment-controls {
     padding: 0 20px;
   }
+
   .adjust-item {
     margin-bottom: 25px;
   }
+
   .adjust-item span {
     margin-bottom: 8px;
     display: block;
     color: #606266;
   }
+
   canvas {
     width: 100%;
     height: auto;
