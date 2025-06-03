@@ -11,28 +11,32 @@
           </h2>
           <div class="camera-controls">
             <el-button-group class="header-buttons">
-              <el-button
-                  size="small"
-                  type="primary"
-                  :icon="cameraActive ? 'el-icon-switch-button' : 'el-icon-video-camera'"
-                  @click="toggleCamera"
-              >
-                {{ cameraActive ? '关闭摄像头' : '开启摄像头' }}
-              </el-button>
-              <el-button
-                  size="small"
-                  :disabled="!cameraActive"
-                  @click="capturePhoto"
-              >
-                拍照
-              </el-button>
-              <el-button
-                  size="small"
-                  :disabled="!cameraActive"
-                  :type="isRecording ? 'danger' : 'success'"
-                  @click="toggleRecording"
-              >
-                {{ isRecording ? '停止录制' : '开始录制' }}
+<!--              <el-button-->
+<!--                  size="small"-->
+<!--                  type="primary"-->
+<!--                  :icon="cameraActive ? 'el-icon-switch-button' : 'el-icon-video-camera'"-->
+<!--                  @click="toggleCamera"-->
+<!--              >-->
+<!--                {{ cameraActive ? '关闭摄像头' : '开启摄像头' }}-->
+<!--              </el-button>-->
+<!--              <el-button-->
+<!--                  size="small"-->
+<!--                  :disabled="!cameraActive"-->
+<!--                  @click="capturePhoto"-->
+<!--              >-->
+<!--                拍照-->
+<!--              </el-button>-->
+<!--              <el-button-->
+<!--                  size="small"-->
+<!--                  :disabled="!cameraActive"-->
+<!--                  :type="isRecording ? 'danger' : 'success'"-->
+<!--                  @click="toggleRecording"-->
+<!--              >-->
+<!--                {{ isRecording ? '停止录制' : '开始录制' }}-->
+<!--              </el-button>-->
+              <el-button type="primary" size="small" @click="showUploadGuide"
+                         style="margin-right: 15px;">
+                算法引导
               </el-button>
               <el-upload
                   class="upload-demo"
@@ -334,6 +338,17 @@
     <el-button @click="selectDialogVisible = false">取 消</el-button>
   </span>
     </el-dialog>
+    <!-- 上传引导弹窗 -->
+    <el-dialog
+        title="算法引导"
+        :visible.sync="uploadGuideVisible"
+        width="80%"
+        top="5vh"
+    >
+      <div style="text-align: center;">
+        <img :src="uploadGuideImage" alt="上传引导图" style="max-width: 100%; height: auto;" />
+      </div>
+    </el-dialog>
 
   </div>
 </template>
@@ -375,7 +390,9 @@ export default {
       patientTotal: 0, // 总条数
       loadingPatients: false, // 加载状态
       inputName: '',
-      patientId: ''
+      patientId: '',
+      uploadGuideVisible: false, // 控制上传引导弹窗是否可见
+      uploadGuideImage: require('@/assets/图片加载引导.png')
 
     };
   },
@@ -392,6 +409,10 @@ export default {
     }
   },
   methods: {
+
+    showUploadGuide() {
+      this.uploadGuideVisible = true;
+    },
     testVideoUrl() {
       if (!this.videoUrl) {
         this.$message.error('没有可用的视频链接');
@@ -1012,5 +1033,11 @@ export default {
 .el-pagination {
   margin-top: 16px;
   text-align: center;
+}
+
+/* 弹窗自定义样式 */
+:deep(.upload-guide-dialog .el-dialog) {
+  max-width: 200px;
+  margin: 20px auto;
 }
 </style>
