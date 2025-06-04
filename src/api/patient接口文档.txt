@@ -151,9 +151,36 @@ data	    json	    非必须
 msg	string	非必须
 
 
+code 和msg data 老样子 code =1 成功
+// 导入
+    url: '/patient/importPatients',
+    method: 'post',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+    传参form表单    file ： 文件
+    返回 成功 失败
+
+// 批量导出患者数据（后端直接返回文件流）
+    url: '/patient/export',
+    method: 'post',
+    data: { ids },
+    传参和删除一样{ids: "10000,10003"}
+    返参 .xlsx 文件
 
 
-
+// 病例分析
+    url: '/patient/analysis',
+    method: 'get'
+    传参 无
+    返参 data ：{
+           totalPatients: 0,
+           totalImages: 0,
+           avgAge: 0,
+           maleCount: 0,
+           femaleCount: 0
+         };
 
 
 

@@ -23,9 +23,38 @@
         </el-button>
 
         <div class="tableLab">
-          <span class="delBut non"
-                @click="deleteHandle('批量', null)"
-          >批量删除</span>
+          <el-button
+              type="info"    style="margin-left: 10px; color: #000"
+              @click="fetchAnalysisData"
+          >
+            病例分析
+          </el-button>
+          <el-button
+              type="warning"    style="margin-left: 10px; color: #000"
+              @click="exportSelectedPatients"
+              :disabled="checkList.length === 0"
+          >
+            批量导出
+          </el-button>
+          <el-upload
+              class="upload-demo"
+              action="#"
+              :on-change="(file) => handleImport(file)"
+              :auto-upload="false"
+              :show-file-list="false"    style="display: inline-block;"
+          >
+            <el-button type="success" style="margin-left: 10px; color: #000">
+              批量导入
+            </el-button>
+          </el-upload>
+          <el-button
+              type="danger"
+              style="margin-left: 10px; color: #000"
+              @click="deleteHandle('批量', null)"
+              :disabled="checkList.length === 0"
+          >
+            批量删除
+          </el-button>
 
           <el-button type="primary"
                      style="margin-left: 15px"
@@ -63,7 +92,6 @@
             <span style="margin-right: 10px">{{ scope.row.age }}</span>
           </template>
         </el-table-column>
-
         <el-table-column prop="updateTime"
                          label="最后操作时间"
         />
@@ -103,13 +131,24 @@
                      @current-change="handleCurrentChange"
       />
     </div>
+    <!-- 弹窗展示分析数据 -->
+    <el-dialog
+        title="病例分析统计"
+        :visible.sync="analysisDialogVisible"
+        width="60%"
+        center
+    >
+      <div ref="chartContainer" style="width: 100%; height: 400px;"></div>
+    </el-dialog>
   </div>
+
+
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HeadLable from '@/components/HeadLable/index.vue';
-import { getPatientPage, deletePatient } from '@/api/Patient';
+import { getPatientPage, deletePatient,importPatients,exportPatients,fetchAnalysisData } from '@/api/Patient';
 import Empty from '@/components/Empty/index.vue';
 
 @Component({
@@ -128,7 +167,83 @@ export default class extends Vue {
   private checkList: string[] = []
   private tableData: [] = []
   private isSearch: boolean = false
+  private analysisDialogVisible = false;
+  private analysisData = {
+    totalPatients: 0,
+    totalImages: 0,
+    avgAge: 0,
+    maleCount: 0,
+    femaleCount: 0
+  };
+  // 获取病例分析数据并弹窗显示
+  private async fetchAnalysisData() {
+    try {
+      const res = await fetchAnalysisData();
+      if (res.data.code === 1 && res.data.data) {
+        this.analysisData = res.data.data;
+        this.analysisDialogVisible = true;
+        // 延迟渲染图表，确保 DOM 已加载
+        this.$nextTick(() => {
+          this.renderChart();
+        });
+      } else {
+        this.$message.error(res.data.msg || '获取分析数据失败');
+      }
+    } catch (err) {
+      this.$message.error('请求失败，请重试');
+      console.error(err);
+    }
+  }
+  private chartInstance: any = null;
 
+  private renderChart() {
+    if (this.chartInstance) {
+      this.chartInstance.dispose(); // 清除旧实例
+    }
+
+    const chartDom = this.$refs.chartContainer as HTMLDivElement;
+    this.chartInstance = echarts.init(chartDom);
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: ['患者总数', '图片总数', '平均年龄', '男性人数', '女性人数']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: '数量',
+          type: 'bar',
+          data: [
+            this.analysisData.totalPatients,
+            this.analysisData.totalImages,
+            this.analysisData.avgAge,
+            this.analysisData.maleCount,
+            this.analysisData.femaleCount
+          ],
+          itemStyle: {
+            color: '#409EFF'
+          }
+        }
+      ]
+    };
+
+    this.chartInstance.setOption(option);
+  }
   created() {
     this.init();
   }
@@ -166,6 +281,62 @@ export default class extends Vue {
     }
   }
 
+
+  //  导入
+  private async handleImport(file: any) {
+    const selectedFile = file.raw;
+
+    if (!selectedFile) {
+      this.$message.error('请选择一个文件');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const res = await importPatients(formData); // 假设你有一个 API 接口
+      if (res.data.code === 1) {
+        this.$message.success('导入成功');
+        await this.init(); // 刷新列表
+      } else {
+        this.$message.error(res.data.msg || '导入失败');
+      }
+    } catch (err) {
+      this.$message.error('上传出错，请重试');
+      console.error(err);
+    }
+  }
+
+  // 导出选中的患者数据为 Excel
+  private async exportSelectedPatients() {
+    if (this.checkList.length === 0) {
+      this.$message.warning('请先选择要导出的患者');
+      return;
+    }
+
+    try {
+      const res = await exportPatients(this.checkList.join(','));
+
+      // 创建 Blob 对象并触发下载
+      const blob = new Blob([res], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
+      });
+
+      const downloadUrl =  window['URL'].createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `患者列表_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.click();
+
+      // 释放对象内存
+      window['URL'].revokeObjectURL(downloadUrl);
+    } catch (err) {
+      this.$message.error('导出失败，请重试');
+      console.error(err);
+    }
+  }
+
   // 删除
   private deleteHandle(type: string, id: any) {
     if (type === '批量' && id === null) {
@@ -192,6 +363,8 @@ export default class extends Vue {
         });
     });
   }
+
+
 
   // 全部操作
   private handleSelectionChange(val: any) { // 多选框 选中的id

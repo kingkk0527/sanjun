@@ -462,8 +462,14 @@ export default class extends Vue {
 
   .tableLab {
     display: flex;
-    float: right;
-    gap: 20px; // 设置三个组件之间的统一间距
+    align-items: center;
+    justify-content: space-between;
+
+    .button-group {
+      display: flex;
+      align-items: center;
+      gap: 10px; // 按钮之间留出空隙
+    }
   }
 }
 </style>

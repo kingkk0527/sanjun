@@ -38,7 +38,6 @@ export const editPatient = (params: any) => {
     data: { ...params }
   });
 };
-
 // 新增接口
 export const addPatient = (params: any) => {
   return request({
@@ -47,7 +46,6 @@ export const addPatient = (params: any) => {
     data: { ...params }
   });
 };
-
 // 查询详情
 export const queryPatientById = (id: string | (string | null)[]) => {
   return request({
@@ -55,9 +53,7 @@ export const queryPatientById = (id: string | (string | null)[]) => {
     method: 'post'
   });
 };
-
 // 删除图片
-
 export const deletePatientImage = (params: any) => {
   return request({
     url: `/patient/deleteImage`,
@@ -68,6 +64,33 @@ export const deletePatientImage = (params: any) => {
     }
   });
 };
+// 导入患者接口
+export const importPatients = (data: any) => {
+  return request({
+    url: '/patient/importPatients',
+    method: 'post',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
+// 批量导出患者数据（后端直接返回文件流）
+export function exportPatients(ids: string) {
+  return request({
+    url: '/patient/export',
+    method: 'post',
+    data: { ids },
+    responseType: 'blob' // 关键：告诉 axios 这是一个二进制流响应 接受文件
+  });
+}
+export const fetchAnalysisData = () => {
+  return request({
+    url: '/patient/analysis',
+    method: 'get'
+  });
+};
+
 // export function deletePatientImage(data) {
 //   return axios({
 //     url: '/patient/deleteImage',

@@ -68,16 +68,16 @@
             </el-button-group>
           </div>
 
+          <!-- 摄像头预览区域 -->
+<!--          <div class="camera-preview-container">-->
+<!--            <video-->
+<!--                v-show="cameraActive"-->
+<!--                ref="videoPreview"-->
+<!--                class="camera-preview"-->
+<!--                autoplay-->
+<!--            />-->
+<!--          </div>-->
           <!-- 图片预览区域 -->
-          <div class="camera-preview-container">
-            <video
-                v-show="cameraActive"
-                ref="videoPreview"
-                class="camera-preview"
-                autoplay
-            />
-          </div>
-
           <div v-if="imageUrl || videoUrl" class="image-preview">
             <img
                 v-if="imageUrl && !videoUrl"
@@ -488,47 +488,47 @@ export default {
       this.currentFile = selectedFile;
       this.$forceUpdate(); // 强制更新视图
     },
-    // 摄像头开关处理
-    async toggleCamera() {
-      if (this.cameraActive) {
-        this.closeCamera();
-      } else {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-          this.$refs.videoPreview.srcObject = stream;
-          this.cameraActive = true;
-        } catch (error) {
-          this.$message.error('摄像头访问失败: ' + error.message);
-        }
-      }
-    },
-    // 摄像头关闭处理
-    closeCamera() {
-      const video = this.$refs.videoPreview;
-      if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-      }
-      this.cameraActive = false;
-      this.isRecording = false;
-    },
-    // 摄像头拍照处理
-    capturePhoto() {
-      const video = this.$refs.videoPreview;
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-
-      canvas.toBlob(blob => {
-        const file = new File([blob], `photo_${Date.now()}.jpg`, {
-          type: 'image/jpeg'
-        });
-        this.currentFile = file;
-        this.isVideo = false;
-        this.handleMediaFile(file);
-      }, 'image/jpeg');
-    },
+    // // 摄像头开关处理
+    // async toggleCamera() {
+    //   if (this.cameraActive) {
+    //     this.closeCamera();
+    //   } else {
+    //     try {
+    //       const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+    //       this.$refs.videoPreview.srcObject = stream;
+    //       this.cameraActive = true;
+    //     } catch (error) {
+    //       this.$message.error('摄像头访问失败: ' + error.message);
+    //     }
+    //   }
+    // },
+    // // 摄像头关闭处理
+    // closeCamera() {
+    //   const video = this.$refs.videoPreview;
+    //   if (video.srcObject) {
+    //     video.srcObject.getTracks().forEach(track => track.stop());
+    //     video.srcObject = null;
+    //   }
+    //   this.cameraActive = false;
+    //   this.isRecording = false;
+    // },
+    // // 摄像头拍照处理
+    // capturePhoto() {
+    //   const video = this.$refs.videoPreview;
+    //   const canvas = document.createElement('canvas');
+    //   canvas.width = video.videoWidth;
+    //   canvas.height = video.videoHeight;
+    //   canvas.getContext('2d').drawImage(video, 0, 0);
+    //
+    //   canvas.toBlob(blob => {
+    //     const file = new File([blob], `photo_${Date.now()}.jpg`, {
+    //       type: 'image/jpeg'
+    //     });
+    //     this.currentFile = file;
+    //     this.isVideo = false;
+    //     this.handleMediaFile(file);
+    //   }, 'image/jpeg');
+    // },
     // 上传图片到后端
     async uploadfile() {
       if (!this.currentFile) {
@@ -540,7 +540,7 @@ export default {
         return;
       }
 
-      let mediaType = 'other';
+      let mediaType = 'null';
       if (this.currentFile.type.startsWith('image/')) {
         mediaType = 'image';
       } else if (this.currentFile.type.startsWith('video/')) {
@@ -559,12 +559,23 @@ export default {
       formData.append('file', this.currentFile);
       formData.append('id', this.selectedPatient.id);
 
+      // 显示加载提示
+      const loading = this.$loading({
+        lock: true,
+        text: '上传成功，等待算法分析，请勿切换页面',
+        background: 'rgba(0, 0, 0, 0.3)',
+        customClass: 'custom-loading'
+      });
+
       try {
         await upload(formData).then((res) => {
           if (res.data.code === 1) {
             this.analysisResultUrl = res.data.data.analysisResultUrl;
             this.analysisResult = res.data.data.analysisResult;
-            this.$message.success('上传成功,等待分析完成，查看右侧结果');
+            if(res.data.data.originalImageUrl){
+              this.imageUrl = res.data.data.originalImageUrl;
+            }
+            this.$message.success('上传成功,分析完成，查看右侧结果');
           } else {
             this.$message.error(res.data.msg);
           }
@@ -572,6 +583,8 @@ export default {
       } catch (error) {
         console.error(error);
         this.$message.error('上传失败，文件格式有误，请重试');
+      }finally {
+        loading.close(); // 关闭加载提示
       }
     },
     // 下载分析图像
@@ -586,9 +599,10 @@ export default {
         return;
       }
 
-      // const content = this.analysisResult.details || '暂无详细分析数据';
-      const content = this.analysisResult || '暂无详细分析数据';
-      const blob = new Blob([content], {type: 'text/plain'});
+      // 将对象转换为格式化的字符串
+      const content = JSON.stringify(this.analysisResult, null, 2); // 2个空格缩进，便于阅读
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `analysis_report_${new Date().getTime()}.txt`;
@@ -1040,4 +1054,6 @@ export default {
   max-width: 200px;
   margin: 20px auto;
 }
+
+
 </style>
