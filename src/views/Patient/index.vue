@@ -142,14 +142,25 @@
     </el-dialog>
   </div>
 
-
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HeadLable from '@/components/HeadLable/index.vue';
-import { getPatientPage, deletePatient,importPatients,exportPatients,fetchAnalysisData } from '@/api/Patient';
+import { getPatientPage, deletePatient, importPatients, exportPatients, fetchAnalysisData } from '@/api/Patient';
 import Empty from '@/components/Empty/index.vue';
+import * as echarts from 'echarts';
+
+function getCurrentTimeFormatted() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+
+  return `${year}${month}${day}_${hours}${minutes}`;
+}
 
 @Component({
   name: 'patientType',
@@ -281,7 +292,6 @@ export default class extends Vue {
     }
   }
 
-
   //  导入
   private async handleImport(file: any) {
     const selectedFile = file.raw;
@@ -307,33 +317,31 @@ export default class extends Vue {
       console.error(err);
     }
   }
-
   // 导出选中的患者数据为 Excel
   private async exportSelectedPatients() {
-    if (this.checkList.length === 0) {
-      this.$message.warning('请先选择要导出的患者');
-      return;
-    }
-
     try {
       const res = await exportPatients(this.checkList.join(','));
 
-      // 创建 Blob 对象并触发下载
-      const blob = new Blob([res], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
+      // 创建 Blob 对象
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
 
-      const downloadUrl =  window['URL'].createObjectURL(blob);
+      // 获取文件名（可从 Content-Disposition 中提取）
+      let filename = `患者导出列表_${getCurrentTimeFormatted()}.xlsx`;
+
+      // 创建下载链接并触发下载
+      const downloadUrl = window['URL'].createObjectURL(blob);
       const a = document.createElement('a');
       a.href = downloadUrl;
-      a.download = `患者列表_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.download = filename;
       a.click();
 
-      // 释放对象内存
+      // 清理对象 URL
       window['URL'].revokeObjectURL(downloadUrl);
     } catch (err) {
       this.$message.error('导出失败，请重试');
-      console.error(err);
+      console.error('导出错误:', err);
     }
   }
 
@@ -363,8 +371,6 @@ export default class extends Vue {
         });
     });
   }
-
-
 
   // 全部操作
   private handleSelectionChange(val: any) { // 多选框 选中的id

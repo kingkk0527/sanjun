@@ -77,8 +77,8 @@ export default class extends Vue {
     }
   }
   private loginForm = {
-    userName: 'admin',
-    password: '123456'
+    userName: '',
+    password: ''
   } as {
     userName: String
     password: String
