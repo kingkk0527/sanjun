@@ -530,6 +530,7 @@ export default {
     //   }, 'image/jpeg');
     // },
     // 上传图片到后端
+    // 上传文件
     async uploadfile() {
       if (!this.currentFile) {
         this.$message.error('请先选择文件');
@@ -592,6 +593,33 @@ export default {
       const previewWindow = window.open('', '_blank');
       previewWindow.location.href = url;
     },
+    // 格式化分析结果
+    formatAnalysis(result) {
+      if (!result) return '';
+      let text = `算法类型: ${result.algorithm}\n\n`;
+
+      // 添加 detail 字段
+      if (result.detail) {
+        text += `分析详情:${result.detail}\n\n`;
+      }
+
+      // 添加 emotion 字段
+      if (result.emotion) {
+        text += '情感分析结果:\n';
+        for (const [emotion, value] of Object.entries(result.emotion)) {
+          text += `${emotion}: ${(value * 100).toFixed(1)}%\n`;
+        }
+      }
+
+      return text;
+    },
+
+    getAdjustedImageUrl() {
+      const baseUrl = this.analysisResultUrl.split('?')[0];
+      // 添加时间戳避免浏览器缓存
+      return `${baseUrl}?resolution=${this.adjustmentParams.resolution}&contrast=${this.adjustmentParams.contrast}&brightness=${this.adjustmentParams.brightness}&timestamp=${Date.now()}`;
+    },
+
     // 下载分析报告
     downloadAnalysisReport() {
       if (!this.analysisResult) {
@@ -600,7 +628,7 @@ export default {
       }
 
       // 将对象转换为格式化的字符串
-      const content = JSON.stringify(this.analysisResult, null, 2); // 2个空格缩进，便于阅读
+      const content =  this.formatAnalysis(this.analysisResult);
 
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
@@ -716,32 +744,6 @@ export default {
       };
 
       this.chartInstance.setOption(option);
-    },
-    // 格式化分析结果
-    formatAnalysis(result) {
-      if (!result) return '';
-      let text = `算法类型: ${result.algorithm}\n\n`;
-
-      // 添加 detail 字段
-      if (result.detail) {
-        text += `分析详情:${result.detail}\n\n`;
-      }
-
-      // 添加 emotion 字段
-      if (result.emotion) {
-        text += '情感分析结果:\n';
-        for (const [emotion, value] of Object.entries(result.emotion)) {
-          text += `${emotion}: ${(value * 100).toFixed(1)}%\n`;
-        }
-      }
-
-      return text;
-    },
-
-    getAdjustedImageUrl() {
-      const baseUrl = this.analysisResultUrl.split('?')[0];
-      // 添加时间戳避免浏览器缓存
-      return `${baseUrl}?resolution=${this.adjustmentParams.resolution}&contrast=${this.adjustmentParams.contrast}&brightness=${this.adjustmentParams.brightness}&timestamp=${Date.now()}`;
     },
 
     // 修改initCanvas方法
