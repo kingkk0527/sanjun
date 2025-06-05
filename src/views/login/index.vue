@@ -119,13 +119,7 @@ export default class extends Vue {
   }
   // 注册
   private handleRegister() {
-    (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
-      if (valid) {
-        this.$router.push('/register');
-      } else {
-        return false;
-      }
-    });
+    this.$router.push('/register');
   }
 }
 </script>
